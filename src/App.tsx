@@ -19,9 +19,9 @@ const App: React.FC = () => {
     selectAll("rect")
       .attr("width", 50)
       .attr("height", 50)
-      .attr("fill", "yellow");
-    // selectAll(".foo")
-    // selectAll('#1')
+      .attr("fill", "yellow")
+      .attr("x", (_, idx) => idx * 100);
+    // .attr("y", (_, idx) => idx * 100);
   });
 
   return (
