@@ -9,18 +9,62 @@ const App: React.FC = () => {
 
   useEffect(() => {
     console.log(select(svgRef.current));
-  });
 
-  //   Selection {_groups: Array(1), _parents: Array(1)}
-  // _groups: Array(1)
-  // 0: [svg]
-  // length: 1
+    select(svgRef.current)
+      .append("rect") // selection switches from svg to newly appended element
+      .attr("width", 50)
+      .attr("height", 50)
+      .attr("fill", "blue");
+  });
 
   return (
     <div className="App">
-      <svg ref={svgRef} />
+      <svg ref={svgRef}>
+        {/* <line />
+         <rect width={50} height={50} fill="blue" /> 
+        <circle /> */}
+      </svg>
     </div>
   );
 };
 
 export default App;
+
+//   Selection {_groups: Array(1), _parents: Array(1)}
+// _groups: Array(1)
+//   0: [svg]
+//   length: 1
+// _parents: [null]
+
+// constructor: ƒ Selection(groups, parents)
+// select: ƒ (select)
+// selectAll: ƒ (select)
+// filter: ƒ (match)
+// data: ƒ (value, key)
+// enter: ƒ ()
+// exit: ƒ ()
+// join: ƒ (onenter, onupdate, onexit)
+// merge: ƒ (selection)
+// order: ƒ ()
+// sort: ƒ (compare)
+// call: ƒ ()
+// nodes: ƒ ()
+// node: ƒ ()
+// size: ƒ ()
+// empty: ƒ ()
+// each: ƒ (callback)
+// attr: ƒ (name, value)
+// style: ƒ (name, value, priority)
+// property: ƒ (name, value)
+// classed: ƒ (name, value)
+// text: ƒ (value)
+// html: ƒ (value)
+// raise: ƒ ()
+// lower: ƒ ()
+// append: ƒ (name)
+// insert: ƒ (name, before)
+// remove: ƒ ()
+// clone: ƒ (deep)
+// datum: ƒ (value)
+// on: ƒ (typename, value, capture)
+// dispatch: ƒ (type, params)
