@@ -1,28 +1,31 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 import "./App.css";
 
-import { select, selectAll } from "d3-selection";
+import { select, Selection } from "d3-selection";
 
 const App: React.FC = () => {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const svgRef = useRef(null);
+
+  const [selection, setSelection] = useState<null | Selection<
+    null,
+    {},
+    null,
+    undefined
+  >>(null);
 
   useEffect(() => {
-    console.log(select(svgRef.current));
-
-    // select(svgRef.current)
-    //   .append("rect") // selection switches from svg to newly appended element
-    //   .attr("width", 50)
-    //   .attr("height", 50)
-    //   .attr("fill", "blue");
-
-    selectAll("rect")
-      .attr("width", 50)
-      .attr("height", 50)
-      .attr("fill", "yellow")
-      .attr("x", (_, idx) => idx * 100);
-    // .attr("y", (_, idx) => idx * 100);
-  });
+    if (!selection) {
+      setSelection(select(svgRef.current));
+    } else {
+      selection
+        .append("rect")
+        .attr("height", 100)
+        .attr("width", 200)
+        .attr("fill", "purple")
+        .attr("rect");
+    }
+  }, [selection]);
 
   return (
     <div className="App">
@@ -30,17 +33,6 @@ const App: React.FC = () => {
         <rect />
         <rect />
         <rect />
-        <rect />
-
-        <rect id="1" />
-        <rect id="1" />
-        <rect id="1" />
-        <rect id="1" />
-
-        <rect className="foo" />
-        <rect className="foo" />
-        <rect className="foo" />
-        <rect className="foo" />
       </svg>
     </div>
   );
