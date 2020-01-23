@@ -1,9 +1,7 @@
-import React, { useRef, useEffect, useState } from "react";
-
-import "./App.css";
-
+import React, { useRef, useState, useEffect } from "react";
 import { select, Selection } from "d3-selection";
-import { scaleLinear } from "d3-scale";
+import { scaleLinear, scaleBand } from "d3-scale";
+import { max } from "d3-array";
 
 const data = [
   {
@@ -29,35 +27,62 @@ const data = [
 ];
 
 const App: React.FC = () => {
-  const svgRef = useRef<SVGSVGElement | null>(null);
-
-  const y = scaleLinear()
-    .domain([0, 10000])
-    .range([0, 800]);
-
+  const svgRef = useRef<null | SVGSVGElement>(null);
   const [selection, setSelection] = useState<null | Selection<
     SVGSVGElement | null,
-    {},
+    unknown,
     null,
     undefined
   >>(null);
+
+  const maxUnits = max(data, data => data.units);
+
+  /**
+   * Scales are need to scale the data that is joined
+   * eg. If i have a dataset that ranges from [100, 5000]
+   * obviously we would need to scale that down to pixels
+   */
+  const y = scaleLinear()
+    .domain([0, maxUnits ? maxUnits : 0])
+    .range([0, 400]);
+
+  /**
+   * Band Scales divides the range into uniform bands
+   * accepts a domain of categories that can be reffered to
+   * commonly used for x-axis of a bar chart
+   */
+  const x = scaleBand()
+    .domain(data.map(d => d.name))
+    .range([0, 400])
+    .paddingInner(0.09)
+    .paddingOuter(0.8);
 
   useEffect(() => {
     if (!selection) {
       setSelection(select(svgRef.current));
     } else {
-      // will show the rect height:
-      console.log(y(3500)); // 280
-      console.log(y(4500)); // 360
-      console.log(y(5500)); //440.0000006
+      console.log(y(1350));
+      console.log(y(257));
+      console.log(x("bar"));
+      selection
+        .selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("width", x.bandwidth)
+        //x(d.name) : undefined | number
+        .attr("x", d => {
+          const xCoordinate = x(d.name);
+          if (xCoordinate) {
+            return xCoordinate;
+          }
+          return null;
+        })
+        .attr("height", d => y(d.units))
+        .attr("fill", d => d.color);
     }
-  }, [selection, y]);
-
-  return (
-    <div className="App">
-      <svg ref={svgRef} width={800} height={800}></svg>
-    </div>
-  );
+  }, [selection, y, x]);
+  return <svg ref={svgRef} height={500} width={800} />;
 };
 
 export default App;
