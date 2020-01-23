@@ -4,7 +4,11 @@ import "./App.css";
 
 import { select, Selection } from "d3-selection";
 
-const mydata = [{ width: 200, heigth: 150, color: "orange" }];
+const mydata = [
+  { units: 150, color: "purple" },
+  { units: 100, color: "red" },
+  { units: 50, color: "blue" }
+];
 
 const App: React.FC = () => {
   const svgRef = useRef(null);
@@ -20,13 +24,13 @@ const App: React.FC = () => {
     if (!selection) {
       setSelection(select(svgRef.current));
     } else {
-      // joining data to a single element
       selection
-        .append("rect")
+        .selectAll("rect")
         .data(mydata)
-        .attr("width", d => d.width)
-        .attr("height", d => d.heigth)
-        .attr("fill", d => d.color);
+        .attr("width", 100)
+        .attr("height", d => d.units)
+        .attr("fill", d => d.color)
+        .attr("x", (_, i) => i * 100);
     }
   }, [selection]);
 
