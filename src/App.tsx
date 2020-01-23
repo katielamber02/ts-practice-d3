@@ -4,6 +4,8 @@ import "./App.css";
 
 import { select, Selection } from "d3-selection";
 
+const mydata = [{ width: 200, heigth: 150, color: "orange" }];
+
 const App: React.FC = () => {
   const svgRef = useRef(null);
 
@@ -18,12 +20,13 @@ const App: React.FC = () => {
     if (!selection) {
       setSelection(select(svgRef.current));
     } else {
+      // joining data to a single element
       selection
         .append("rect")
-        .attr("height", 100)
-        .attr("width", 200)
-        .attr("fill", "purple")
-        .attr("rect");
+        .data(mydata)
+        .attr("width", d => d.width)
+        .attr("height", d => d.heigth)
+        .attr("fill", d => d.color);
     }
   }, [selection]);
 
@@ -40,41 +43,12 @@ const App: React.FC = () => {
 
 export default App;
 
-//   Selection {_groups: Array(1), _parents: Array(1)}
+// CONSOLE DOM ELEMENT
+// Selection {_groups: Array(1), _parents: Array(1)}
 // _groups: Array(1)
-//   0: [svg]
-//   length: 1
-// _parents: [null]
 
-// constructor: ƒ Selection(groups, parents)
-// select: ƒ (select)
-// selectAll: ƒ (select)
-// filter: ƒ (match)
-// data: ƒ (value, key)
-// enter: ƒ ()
-// exit: ƒ ()
-// join: ƒ (onenter, onupdate, onexit)
-// merge: ƒ (selection)
-// order: ƒ ()
-// sort: ƒ (compare)
-// call: ƒ ()
-// nodes: ƒ ()
-// node: ƒ ()
-// size: ƒ ()
-// empty: ƒ ()
-// each: ƒ (callback)
-// attr: ƒ (name, value)
-// style: ƒ (name, value, priority)
-// property: ƒ (name, value)
-// classed: ƒ (name, value)
-// text: ƒ (value)
-// html: ƒ (value)
-// raise: ƒ ()
-// lower: ƒ ()
-// append: ƒ (name)
-// insert: ƒ (name, before)
-// remove: ƒ ()
-// clone: ƒ (deep)
-// datum: ƒ (value)
-// on: ƒ (typename, value, capture)
-// dispatch: ƒ (type, params)
+// 0: svg
+// __data__:
+// width: 200
+// heigth: 150
+// color: "orange"
