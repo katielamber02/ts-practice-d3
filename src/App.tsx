@@ -7,7 +7,10 @@ import { select, Selection } from "d3-selection";
 const mydata = [
   { units: 150, color: "purple" },
   { units: 100, color: "red" },
-  { units: 50, color: "blue" }
+  { units: 50, color: "blue" },
+  { units: 250, color: "orange" },
+  { units: 350, color: "green" },
+  { units: 400, color: "yellow" }
 ];
 
 const App: React.FC = () => {
@@ -24,9 +27,16 @@ const App: React.FC = () => {
     if (!selection) {
       setSelection(select(svgRef.current));
     } else {
-      selection
+      const rects = selection
         .selectAll("rect")
         .data(mydata)
+        .attr("width", 100)
+        .attr("height", d => d.units)
+        .attr("fill", d => d.color)
+        .attr("x", (_, i) => i * 100);
+      rects
+        .enter()
+        .append("rect")
         .attr("width", 100)
         .attr("height", d => d.units)
         .attr("fill", d => d.color)
@@ -36,7 +46,7 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <svg ref={svgRef}>
+      <svg ref={svgRef} width={500} height={500}>
         <rect />
         <rect />
         <rect />
