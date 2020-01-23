@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 
 import "./App.css";
 
-import { select } from "d3-selection";
+import { select, selectAll } from "d3-selection";
 
 const App: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -10,19 +10,37 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log(select(svgRef.current));
 
-    select(svgRef.current)
-      .append("rect") // selection switches from svg to newly appended element
+    // select(svgRef.current)
+    //   .append("rect") // selection switches from svg to newly appended element
+    //   .attr("width", 50)
+    //   .attr("height", 50)
+    //   .attr("fill", "blue");
+
+    selectAll("rect")
       .attr("width", 50)
       .attr("height", 50)
-      .attr("fill", "blue");
+      .attr("fill", "yellow");
+    // selectAll(".foo")
+    // selectAll('#1')
   });
 
   return (
     <div className="App">
       <svg ref={svgRef}>
-        {/* <line />
-         <rect width={50} height={50} fill="blue" /> 
-        <circle /> */}
+        <rect />
+        <rect />
+        <rect />
+        <rect />
+
+        <rect id="1" />
+        <rect id="1" />
+        <rect id="1" />
+        <rect id="1" />
+
+        <rect className="foo" />
+        <rect className="foo" />
+        <rect className="foo" />
+        <rect className="foo" />
       </svg>
     </div>
   );
