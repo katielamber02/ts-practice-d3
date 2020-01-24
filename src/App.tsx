@@ -2,9 +2,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { select, Selection } from "d3-selection";
 import { scaleLinear, scaleBand } from "d3-scale";
 import { max } from "d3-array";
-import { axisLeft, axisBottom } from "d3-axis";
 
-const data = [
+let initialData = [
   {
     name: "foo",
     units: 32
@@ -30,17 +29,22 @@ const data = [
     units: 59
   }
 ];
-
-const dimensions = {
-  width: 600,
-  height: 600,
-  marginLeft: 100,
-  marginBottom: 100,
-  marginTop: 100
-};
-
 const App: React.FC = () => {
-  const svgRef = useRef<null | SVGSVGElement>(null);
+  const dimensions = { width: 800, height: 500 };
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [data, setData] = useState(initialData);
+  const [name, setName] = useState("");
+  const [unit, setUnit] = useState("");
+
+  let x = scaleBand()
+    .domain(data.map(d => d.name))
+    .range([0, dimensions.width])
+    .padding(0.05);
+
+  let y = scaleLinear()
+    .domain([0, max(data, d => d.units)!])
+    .range([dimensions.height, 0]);
+
   const [selection, setSelection] = useState<null | Selection<
     SVGSVGElement | null,
     unknown,
@@ -48,58 +52,69 @@ const App: React.FC = () => {
     undefined
   >>(null);
 
-  const y = scaleLinear()
-    .domain([0, max(data, d => d.units)!])
-    .range([0, dimensions.width - dimensions.marginBottom]);
-
-  const x = scaleBand()
-    .domain(data.map(d => d.name))
-    .range([0, dimensions.width - dimensions.marginLeft])
-    .padding(0.1);
-
-  const yAxis = axisLeft(y).tickFormat(d => `units ${d}`);
-  //.ticks(4);  // how many number to show could be more
-  const xAxis = axisBottom(x);
-
   useEffect(() => {
     if (!selection) {
       setSelection(select(svgRef.current));
     } else {
-      const xAxisGroup = selection
-        .append("g")
-        .attr(
-          "transform",
-          `translate(${dimensions.marginLeft}, ${dimensions.height -
-            dimensions.marginBottom})`
-        )
-        .call(xAxis);
-
-      const yAxisGroup = selection
-        .append("g")
-        .attr("transform", `translate(${dimensions.marginLeft}, 0)`)
-        .call(yAxis);
-      const charts = selection
-        .append("g")
-        .attr("transform", `translate(${dimensions.marginLeft}, 0)`)
+      selection
         .selectAll("rect")
         .data(data)
         .enter()
         .append("rect")
-        .attr("width", x.bandwidth)
-        .attr("height", d => y(d.units))
         .attr("x", d => x(d.name)!)
-        .attr("fill", "grey");
+        .attr("y", d => y(d.units))
+        .attr("width", x.bandwidth)
+        .attr("height", d => dimensions.height - y(d.units))
+        .attr("fill", "orange")
+        .attr("stroke", "black");
+      console.log(selection);
     }
   }, [selection]);
+
+  useEffect(() => {
+    if (selection) {
+      x = scaleBand()
+        .domain(data.map(d => d.name))
+        .range([0, dimensions.width])
+        .padding(0.05);
+      y = scaleLinear()
+        .domain([0, max(data, d => d.units)!])
+        .range([dimensions.height, 0]);
+
+      const rects = selection.selectAll("rect").data(data);
+      rects.exit().remove();
+      rects
+        .attr("x", d => x(d.name)!)
+        .attr("y", d => y(d.units))
+        .attr("width", x.bandwidth)
+        .attr("height", d => dimensions.height - y(d.units))
+        .attr("fill", "orange");
+      rects
+        .enter()
+        .append("rect")
+        .attr("x", d => x(d.name)!)
+        .attr("y", d => y(d.units))
+        .attr("width", x.bandwidth)
+        .attr("height", d => dimensions.height - y(d.units))
+        .attr("fill", "orange");
+    }
+  }, [data]);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setData([...data, { name, units: parseInt(unit) }]);
+  };
   return (
-    <div>
-      <svg
-        ref={svgRef}
-        height={dimensions.width}
-        width={dimensions.height}
-        style={{ marginTop: 20 }}
-      ></svg>
-    </div>
+    <>
+      <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />
+      <form onSubmit={submit}>
+        Name:
+        <input value={name} onChange={e => setName(e.target.value)} />
+        Units:
+        <input value={unit} onChange={e => setUnit(e.target.value)} />
+        <button type="submit">Submit</button>
+      </form>
+    </>
   );
 };
 
