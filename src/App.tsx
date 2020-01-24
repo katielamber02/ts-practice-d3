@@ -16,15 +16,28 @@ const data = [
   },
   {
     name: "baz",
-    units: 1350,
+    units: 1250,
     color: "orange"
   },
   {
     name: "hoge",
     units: 900,
     color: "purple"
+  },
+  {
+    name: "hogg",
+    units: 600,
+    color: "aqua"
   }
 ];
+
+const dimensions = {
+  width: 800,
+  height: 500,
+  chartWidth: 500,
+  chartHeight: 400,
+  marginLeft: 100
+};
 
 const App: React.FC = () => {
   const svgRef = useRef<null | SVGSVGElement>(null);
@@ -35,54 +48,49 @@ const App: React.FC = () => {
     undefined
   >>(null);
 
-  const maxUnits = max(data, data => data.units);
+  const maxValue = max(data, data => data.units);
 
-  /**
-   * Scales are need to scale the data that is joined
-   * eg. If i have a dataset that ranges from [100, 5000]
-   * obviously we would need to scale that down to pixels
-   */
   const y = scaleLinear()
-    .domain([0, maxUnits ? maxUnits : 0])
-    .range([0, 400]);
+    .domain([0, maxValue!])
+    .range([0, dimensions.chartHeight]);
 
-  /**
-   * Band Scales divides the range into uniform bands
-   * accepts a domain of categories that can be reffered to
-   * commonly used for x-axis of a bar chart
-   */
   const x = scaleBand()
     .domain(data.map(d => d.name))
-    .range([0, 400])
-    .paddingInner(0.09)
-    .paddingOuter(0.8);
+    .range([0, dimensions.chartWidth])
+    .padding(0.09);
 
   useEffect(() => {
     if (!selection) {
       setSelection(select(svgRef.current));
     } else {
-      console.log(y(1350));
-      console.log(y(257));
-      console.log(x("bar"));
       selection
+        .append("rect")
+        .attr("width", dimensions.width)
+        .attr("height", dimensions.height)
+        .attr("fill", "grey");
+
+      selection
+        .append("g")
+        .attr("transform", `translate(${dimensions.marginLeft},0)`)
         .selectAll("rect")
         .data(data)
         .enter()
         .append("rect")
         .attr("width", x.bandwidth)
-        //x(d.name) : undefined | number
-        .attr("x", d => {
-          const xCoordinate = x(d.name);
-          if (xCoordinate) {
-            return xCoordinate;
-          }
-          return null;
-        })
         .attr("height", d => y(d.units))
-        .attr("fill", d => d.color);
+        .attr("fill", d => d.color)
+        .attr("x", d => x(d.name)!);
     }
-  }, [selection, y, x]);
-  return <svg ref={svgRef} height={500} width={800} />;
+  }, [selection]);
+  return (
+    <div>
+      <svg
+        ref={svgRef}
+        height={dimensions.chartHeight}
+        width={dimensions.chartWidth}
+      ></svg>
+    </div>
+  );
 };
 
 export default App;
