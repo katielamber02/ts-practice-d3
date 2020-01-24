@@ -2,6 +2,9 @@ import React, { useRef, useState, useEffect } from "react";
 import { select, Selection } from "d3-selection";
 import { scaleLinear, scaleBand } from "d3-scale";
 import { max } from "d3-array";
+import "d3-transition";
+import { easeElastic } from "d3-ease";
+import randomstring from "randomstring";
 
 let initialData = [
   {
@@ -62,12 +65,16 @@ const App: React.FC = () => {
         .enter()
         .append("rect")
         .attr("x", d => x(d.name)!)
-        .attr("y", d => y(d.units))
+        .attr("y", dimensions.height)
         .attr("width", x.bandwidth)
-        .attr("height", d => dimensions.height - y(d.units))
         .attr("fill", "orange")
-        .attr("stroke", "black");
-      console.log(selection);
+        .attr("height", 0)
+        .transition()
+        .duration(700)
+        .delay((_, i) => i * 100)
+        .ease(easeElastic)
+        .attr("height", d => dimensions.height - y(d.units))
+        .attr("y", d => y(d.units));
     }
   }, [selection]);
 
@@ -82,38 +89,65 @@ const App: React.FC = () => {
         .range([dimensions.height, 0]);
 
       const rects = selection.selectAll("rect").data(data);
-      rects.exit().remove();
+
       rects
+        .exit()
+        .transition()
+        .ease(easeElastic)
+        .duration(400)
+        .attr("height", 0)
+        .attr("y", dimensions.height)
+        .remove();
+
+      rects
+        .transition()
+        .delay(300)
         .attr("x", d => x(d.name)!)
         .attr("y", d => y(d.units))
         .attr("width", x.bandwidth)
         .attr("height", d => dimensions.height - y(d.units))
         .attr("fill", "orange");
+
       rects
         .enter()
         .append("rect")
         .attr("x", d => x(d.name)!)
-        .attr("y", d => y(d.units))
         .attr("width", x.bandwidth)
+        .attr("height", 0)
+        .attr("y", dimensions.height)
+        .transition()
+        .delay(400)
+        .duration(500)
+        .ease(easeElastic)
         .attr("height", d => dimensions.height - y(d.units))
+        .attr("y", d => y(d.units))
         .attr("fill", "orange");
     }
   }, [data]);
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setData([...data, { name, units: parseInt(unit) }]);
+  /**
+   * functions to help add and remove elements to show transitions
+   */
+  const addData = () => {
+    const dataToAdd = {
+      name: randomstring.generate(),
+      units: Math.round(Math.random() * 80 + 20)
+    };
+    setData([...data, dataToAdd]);
   };
+
+  const removeData = () => {
+    if (data.length === 0) {
+      return;
+    }
+    setData([...data.slice(0, data.length - 1)]);
+  };
+
   return (
     <>
       <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />
-      <form onSubmit={submit}>
-        Name:
-        <input value={name} onChange={e => setName(e.target.value)} />
-        Units:
-        <input value={unit} onChange={e => setUnit(e.target.value)} />
-        <button type="submit">Submit</button>
-      </form>
+      <button onClick={addData}>Add Data</button>
+      <button onClick={removeData}>Remove Data</button>
     </>
   );
 };
