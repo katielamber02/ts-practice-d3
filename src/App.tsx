@@ -57,7 +57,8 @@ const App: React.FC = () => {
     .range([0, dimensions.width - dimensions.marginLeft])
     .padding(0.1);
 
-  const yAxis = axisLeft(y);
+  const yAxis = axisLeft(y).tickFormat(d => `units ${d}`);
+  //.ticks(4);  // how many number to show could be more
   const xAxis = axisBottom(x);
 
   useEffect(() => {
